@@ -1,14 +1,56 @@
-'use strict'
-
-# libraries
 require! mkdirp
-require! '../functions/helpers.ls'
+require! './helpers.ls'
 {sort-by, unique} = require \prelude-ls
-{select-random, slugify-db, slugify-project, subcategories-of, images-in, in-this-category, in-this-subcategory, in-these-subcategories, nested-subcategories, in-this-protocol, nested-categories, nested-categories-web, platform-types, protocol-types} = require '../functions/sort.ls'
-{write-html, write-json} = require '../functions/write-files.ls'
-{routes} = require '../functions/routes.ls'
-{view-path} = require '../functions/view-path.ls'
+{select-random, slugify-db, slugify-project, in-this-category, in-this-subcategory, nested-subcategories, in-this-protocol, nested-categories-web, platform-types, protocol-types} = require './sort.ls'
 
+view-path = (view-name) ->
+  'source/views/' + view-name + '.pug'
+
+routes = (subdirectory, depth) ->
+  if depth?
+    if depth == 0
+      prefix = './'
+    else if depth == 1
+      prefix = '../'
+    else if depth == 2
+      prefix = '../../'
+    else
+      console.log "depth only goes to 2"
+  else
+    prefix = './'
+
+  bare-paths =
+    css: '../assets/css/screen.css'
+    about: 'about/'
+    all: 'all/'
+    categories: 'categories/'
+    icons: '../assets/icons/'
+    logos: '../assets/logos/'
+    logos-rejected: '../assets/logos/'
+    projects: 'projects/'
+    protocols: 'protocols/'
+    public: '../'
+    root: ''
+    subcategories: 'subcategories/'
+
+  final-paths = {}
+  for key, value of bare-paths
+    if subdirectory == value
+      if depth == 2
+        final-paths[key] = '../'
+      else
+        final-paths[key] = '.'
+    else
+      final-paths[key] = prefix + value
+  final-paths
+
+fs = require 'fs'
+pug = require 'pug'
+
+write-html = (view, options, file) ->
+  options.cache = true;
+  options.compileDebug = false;
+  fs.writeFileSync(file + ".html", (pug.renderFile view, options))
 
 ############################################################################
 # WRITE FUNCTIONS
@@ -35,7 +77,6 @@ write-site-index = (db) ->
   path = 'index'
   view = view-path path
   options = 
-    pretty: true
     iso: db.iso
     body-class: "#{db.iso} root index"
     h: helpers
@@ -46,7 +87,6 @@ write-site-index = (db) ->
   file = db.dir + path
 
   write-html view, options, file
-  #write-json data, file
   
 write-all-index = (db) ->
   data = nested-subcategories db.projects, db.projects-rejected
@@ -54,7 +94,6 @@ write-all-index = (db) ->
   path = 'all/index'
   view = view-path path
   options = 
-    pretty: true
     iso: db.iso
     body-class: "#{db.iso} all index"
     h: helpers
@@ -76,7 +115,6 @@ write-categories-index = (db) ->
   path = 'categories/index'
   view = view-path path
   options = 
-    pretty: true
     iso: db.iso
     body-class: "#{db.iso} categories index"
     h: helpers
@@ -88,37 +126,10 @@ write-categories-index = (db) ->
 
   write = ->
     write-html view, options, file
-    #write-json data, file
 
   mkdirp db.dir + 'categories', (err) ->
     if err => console.error err
     else write!
-
-/*
-write-categories-index = (db) ->
-  data = nested-categories db.projects
-
-  path = 'categories/index'
-  view = view-path path
-  options = 
-    pretty: true
-    iso: db.iso
-    body-class: "#{db.iso} categories index"
-    h: helpers
-    categories: data
-    path: 'categories'
-    routes: routes 'categories', 1
-    t: db.locale
-  file = db.dir + path
-
-  write = ->
-    write-html view, options, file
-    #write-json data, file
-
-  mkdirp db.dir + 'categories', (err) ->
-    if err => console.error err
-    else write!
-*/
 
 write-categories-show = (db) ->
   create = (category) ->
@@ -137,13 +148,11 @@ write-categories-show = (db) ->
         (.name.to-lower-case!),
         unique(projects-rejected.concat(projects-rejected-web))
       )
-      #rejected = in-this-subcategory(subcategory.name, in-this-category(category.name, db.projects-rejected))
       subcategory.projects-rejected = projects-rejected-all
 
     path = "categories/#{category.slug}/"
     view = view-path 'categories/show'
     options = 
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} categories show"
       h: helpers
@@ -157,7 +166,6 @@ write-categories-show = (db) ->
 
     write = ->
       write-html view, options, file
-      #write-json data, file
 
     mkdirp full-path, (err) ->
       if err
@@ -192,7 +200,6 @@ write-subcategories-show = (db) ->
     path = "subcategories/#{category.slug}-#{subcategory.slug}/"
     view = view-path 'subcategories/show'
     options = 
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} subcategories show"
       h: helpers
@@ -205,7 +212,6 @@ write-subcategories-show = (db) ->
 
     write = ->
       write-html view, options, file
-      #write-json data, file
 
     mkdirp full-path, (err) ->
       if err
@@ -223,7 +229,6 @@ write-protocols-index = (db) ->
   path = 'protocols/index'
   view = view-path path
   options = 
-    pretty: true
     iso: db.iso
     body-class: "#{db.iso} protocols index"
     h: helpers
@@ -235,7 +240,6 @@ write-protocols-index = (db) ->
 
   write = ->
     write-html view, options, file
-    #write-json data, file
 
   mkdirp db.dir + 'protocols', (err) ->
     if err
@@ -251,7 +255,6 @@ write-protocols-show = (db) ->
     path = "protocols/#{protocol.slug}/"
     view = view-path 'protocols/show'
     options = 
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} protocols show"
       h: helpers
@@ -265,7 +268,6 @@ write-protocols-show = (db) ->
 
     write = ->
       write-html view, options, file
-      #write-json data, file
 
     mkdirp full-path, (err) ->
       if err
@@ -282,7 +284,6 @@ write-projects-index = (db) ->
   path = 'projects/index'
   view = view-path path
   options = 
-    pretty: true
     iso: db.iso
     body-class: "#{db.iso} projects index"
     h: helpers
@@ -294,7 +295,6 @@ write-projects-index = (db) ->
 
   write = ->
     write-html view, options, file
-    #write-json data, file
 
   mkdirp db.dir + 'projects', (err) ->
     if err
@@ -309,7 +309,6 @@ write-projects-show = (db) ->
     path = "projects/#{project.slug}/"
     view = view-path 'projects/show'
     options = 
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} projects show"
       h: helpers
@@ -322,7 +321,6 @@ write-projects-show = (db) ->
 
     write = ->
       write-html view, options, file
-      #write-json data, file
 
     mkdirp full-path, (err) ->
       if err => console.error err
@@ -336,7 +334,6 @@ write-about-index = (db) ->
     path = 'about/index'
     view = view-path path
     options =
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} about index"
       h: helpers
@@ -358,7 +355,6 @@ write-about-media = (db) ->
     path = 'about/media/'
     view = view-path 'about/media'
     options =
-      pretty: true
       iso: db.iso
       body-class: "#{db.iso} about media"
       h: helpers

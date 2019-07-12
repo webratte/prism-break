@@ -1,9 +1,3 @@
-.DS_Store
-*~
-*.log
-.*.s[a-w][a-z]
-
-log/
-node_modules/
-public/
-tmp/
+*.json.lint
+node_modules
+public

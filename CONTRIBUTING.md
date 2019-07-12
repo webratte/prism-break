@@ -1,17 +1,50 @@
-# Contribute: Projects
+If you want to contribute and have any questions whatsoever, join us
+[at #prism-break on Freenode][#freenode]. It's a great place to get help. Don't
+ask to ask, just send your question and someone will get back to you soon.
+
+[#freenode]: https://webchat.freenode.net/?channels=prism-break
+
+## Help wanted
+
+If you just want to help, consider checking out issues that have [help wanted][]
+label. Pull requests that resolve this issues will be merged without additional
+discussion.
+
+[help wanted]: https://gitlab.com/prism-break/prism-break/issues?label_name%5B%5D=help+wanted
+
+## Projects
 
 ### Which Files to Edit
-If you want to edit or add a project to PRISM Break, this data resides here:
 
-    ./source/db/*-projects.json
+If you want to edit or add a project to PRISM Break, see
+`source/db/en-projects.json`.
 
-If you want to edit or add to the project logos on this site, look here:
+If you want to add a project logo, see `source/assets/logos`. SVG is highly
+preferred. Make sure that there is no inappropriate white background or
+margins, and that logo's aspect ratio is 1:1. In Inkscape, go to File ->
+Document Properties -> Page Size -> Custom size and make sure that Width and
+Height are identical.
 
-    ./source/assets/images/logos/medium/          # for images currently used
-    ./source/assets/images/logos/original/        # for high res/svg versions
+To remove white margins, go to File -> Document Properties -> Page Size ->
+Custom size -> Resize page to connect... -> Resize page to drawing or
+selection. Then set Width/Height to the highest value of the two to get back to
+1:1 aspect ratio. Particular value is not important.
+
+To re-center the logo, press Ctrl+A to select all objects, press Ctrl+Shift+A
+to open "Align and Distribute" menu, choose to align relative to page, tick
+"treat selection as group", and then press "Center on horizontal axis" and
+"Center on vertical axis" buttons.
+
+If possible, please also run [svgcleaner][] on SVG logos and [zopflipng][] on
+PNG logos. If you haven't done that, make sure to say that in merge request so
+that reviewer can do that for you.
+
+[svgcleaner]: https://github.com/RazrFalcon/svgcleaner
+[zopflipng]: https://github.com/google/zopfli
 
 ### Add the Project Data
-Append the sample project to the file `./source/db/en-projects.json`. Edit the values to fit your project. Repeat the process for the other languages (e.g. `./source/db/de-projects.json`).
+
+Append the sample project to the file `source/db/en-projects.json`. Edit the values to fit your project.
 
 **Sample Project:**
 
@@ -19,14 +52,14 @@ Append the sample project to the file `./source/db/en-projects.json`. Edit the v
       "development_stage": "released",
       "description": "Encrypted, anonymous web browsing powered by the Tor network.",
       "license_url": "https://gitweb.torproject.org/tor.git?a=blob_plain;hb=HEAD;f=LICENSE",
-      "logo": "tor-browser-bundle.png",
-      "notes": "Using the TBB to sign into websites that contain your real ID is counterproductive, and may trip the site's fraud protection. Make sure to check for HTTPS before signing in to a website through Tor.\n\nSigning into HTTP websites can result in your ID being captured by a Tor exit node.",
+      "logo": "tor-browser.png",
+      "notes": "Using Tor Browser to sign into websites that contain your real ID is counterproductive, and may trip the site's fraud protection. Make sure to check for HTTPS before signing in to a website through Tor.\n\nSigning into HTTP websites can result in your ID being captured by a Tor exit node.",
       "privacy_url": "https://www.torproject.org/about/overview.html.en",
       "source_url": "https://gitweb.torproject.org/tor.git",
-      "name": "Tor Browser Bundle",
+      "name": "Tor Browser",
       "tos_url": "",
       "url": "https://www.torproject.org/projects/torbrowser.html.en",
-      "wikipedia_url": "https://en.wikipedia.org/wiki/Tor_Browser_Bundle",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Tor_Browser",
       "protocols": [
         "SSL/TLS",
         "Tor"
@@ -57,13 +90,13 @@ Append the sample project to the file `./source/db/en-projects.json`. Edit the v
           ]
         }
       ],
-      "slug": "tor-browser-bundle"
+      "slug": "tor-browser"
     },
 
 Only the fields `name`, `description`, `logo`, `url`, `categories`, and `development_stage` are required. The other fields can be left empty with a value of `""` (`[]` for `protocols`).
 
 ### Add the Project Thumbnail
-**Project thumbnails should be in the PNG format.** Try to get a 1024px x 1024px (or better) version of the logo for `./source/assets/images/logos/original` and rescale it to 60x60 and 120x120 for `./source/assets/images/logos/medium` and `./source/assets/images/logos/medium@2x`
+**Project thumbnails should be in the SVG or PNG format.** Get a SVG version or a 1024px x 1024px (or better) PNG version of the logo for `./source/assets/logos`.
 
 ### Testing Your Edits/Additions
 When you're done with your edits, you should build the site to see if it compiles properly. To do so, run:
@@ -101,9 +134,9 @@ If your language file doesn't exist yet, you can copy the en.json file and start
 ### JSON Validation
 **Make sure your JSON validates.** You can use either use [JSONLint](http://jsonlint.com/) online or install it locally with `npm install jsonlint -g`.
 
-A common mistake is putting unescaped quotation marks in a sentence. Make sure to escape them with either HTML entities (curly quotes) or a backslash (straight quotes).
+A common mistake is putting unescaped quotation marks in a sentence. Make sure to use Unicode typographic marks (curly quotes) or escape regular (straight) quotes with a backslash.
 
-    "description": "Use curly quotes &ldquo;like this&rdquo;.",
+    "description": "Use curly quotes “like this”.",
 
     "description": "Escape straight quotes \"like this\".",
 
@@ -117,21 +150,8 @@ Your newly translated site is available at './public/**language-code**/'. Visit 
 
 Remember to revert the `Makefile` change and then commit the changes and issue a pull request.
 
-# Contribute: Mirror
+## Mirrors
+
 If you wish to mirror this site, [nylira/prism-break-static](https://github.com/nylira/prism-break-static) is probably of interest to you. This is a completely static (but constantly updated) version of the site you can save to browse locally or serve over HTTP.
 
-### Mirrors
-
- - [http://hrk2gpercx3p6apf.onion/](http://hrk2gpercx3p6apf.onion/)
- (credit: etheralghost)
-
- - [https://prism-break.ca](https://prism-break.ca)
- (credit: wiserweb)
-
- - [https://www.sedrubal.de/service/prism-break/en/](https://www.sedrubal.de/service/prism-break/en/)
- (credit: [sedrubal](https://github.com/sedrubal))
-
-# Code of Conduct
-
-This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating, you are expected to honor this code.
-[code-of-conduct]: http://todogroup.org/opencodeofconduct/#PRISM-Break/abuse@prism-break.org
+There are no known mirrors yet. If you make one, please tell us and we'll link it here.
